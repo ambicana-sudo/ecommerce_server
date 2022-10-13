@@ -22,6 +22,7 @@ const ProductSchema = new mongoose.Schema({
     quantity: {type: Number, required: true},
     category: {type: String, required: true},
     id: {type: String},
+    isLiked: {type: Boolean},
     created: {type: String},
     
 }, {
