@@ -42,9 +42,17 @@ async function connect(){
 connect()
 
 app.post('/products', async(req,res)=>{
-    // console.log("hello")
-     Products.create(req.body)
-     res.json({msg: "added"})
+    try{
+        const products = await Products.create(req.body)
+        if(products){
+            res.json({msg: "added"})
+        }
+    }catch(err){
+        res.send({
+            errMsg: "invalid details"
+        })
+    }
+
 })
 
 function paginate (arr, size) {
@@ -63,15 +71,14 @@ app.get('/products', async(req,res)=>{
    let page_size = req.query.size
    let pages = paginate(allProductsFromDb, page_size)
 	
-	console.log(req.query.size)
+
 
 	if(req.query.page){
 		// let page_size = req.query.size
    	// let pages = paginate(allProductsFromDb, page_size)
 
 		pages[req.query.page]
-
-		res.json({productList: pages[req.query.page], maxPage:5})
+		res.json({productList: pages[req.query.page-1], maxPage:Math.ceil(allProductsFromDb.length/page_size)})
 
 	}else{
 		res.json({productList: allProductsFromDb, maxPage:5})
