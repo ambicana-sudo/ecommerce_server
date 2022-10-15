@@ -23,6 +23,7 @@ const ProductSchema = new mongoose.Schema({
     category: {type: String, required: true},
     id: {type: String},
     created: {type: String},
+	 isLiked: {type: Boolean, default: false}
     
 }, {
     collection: 'products'
@@ -41,10 +42,26 @@ async function connect(){
 
 connect()
 
+// app.post('/products', async(req,res)=>{
+//     // console.log("hello")
+//      Products.create(req.body)
+//      res.json({msg: "added"})
+// })
+
 app.post('/products', async(req,res)=>{
+	try{
+		const product = await Products.create(req.body)
+		if(product){	
+			res.json({
+				msg: "added"
+			})
+		}
+	}catch(err){
+		res.send({
+			errmsg: "Invalid"
+		})
+	}
     // console.log("hello")
-     Products.create(req.body)
-     res.json({msg: "added"})
 })
 
 function paginate (arr, size) {
@@ -62,8 +79,8 @@ app.get('/products', async(req,res)=>{
 
    let page_size = req.query.size
    let pages = paginate(allProductsFromDb, page_size)
-	
-	console.log(req.query.size)
+	let pageLimit = Math.ceil(allProductsFromDb.length/page_size)
+	// console.log(req.query.size)
 
 	if(req.query.page){
 		// let page_size = req.query.size
@@ -71,16 +88,41 @@ app.get('/products', async(req,res)=>{
 
 		pages[req.query.page]
 
-		res.json({productList: pages[req.query.page], maxPage:5})
+		res.json({productList: pages[req.query.page-1], maxPage:pageLimit})
 
 	}else{
 		res.json({productList: allProductsFromDb, maxPage:5})
-	}
-
-   
+	} 
 })
 
-  
+app.put('/products/:id', async(req,res)=>{
+	try{
+		const productId = req.params.id
+		const productData = await Products.findById(productId)
+
+		//check if data is available
+		if(!productData){
+			return res.status(404).send()
+		}else{
+			res.send(productData)
+		}
+		
+		console.log(req.params.id) // to log the produc id on node console
+	}catch(error){
+		res.send(error)
+	}
+})
+
+// app.patch('/products/:id', async(req,res)=>{
+// 	try{
+// 		 const productId = req.params.id
+// 		 const updateData = await Products.findByIdAndUpdate(productId, req.body) //(productWithTheId, update)
+
+// 		 res.send(updateData)
+// 	}catch(error){
+// 		 return res.status(404).send()
+// 	}
+// })
 
 
 //Lotterydb
