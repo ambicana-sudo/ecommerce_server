@@ -1,46 +1,44 @@
-const express = require('express')
-const app = express()
+const app = require('express')()
 const cors = require('cors')
-app.use(cors())
-const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
+const dotenv = require ("dotenv")
+const Products = require('./models/product')
+
+app.use(cors())
+require('./db/mongoose')()
 app.use(bodyParser.json())
-const port = 3001;
+// const port = 3001;
+dotenv.config()
 
+app.get('/products', async(req,res)=>{
+	
+	const allProductsFromDb = await Products.find({})
+ 
+	let page_size = req.query.size
+	let pages = paginate(allProductsFromDb, page_size)
+	 let pageLimit = Math.ceil(allProductsFromDb.length/page_size)
+	 // console.log(req.query.size)
+ 
+	 if(req.query.page){
+		 // let page_size = req.query.size
+		// let pages = paginate(allProductsFromDb, page_size)
+ 
+		 pages[req.query.page]
+ 
+		 res.json({productList: pages[req.query.page-1], maxPage:pageLimit})
+ 
+	 }else{
+		 res.json({productList: allProductsFromDb, maxPage:5})
+	 } 
+ })
 
-app.listen(3001, () => {
-    console.log(`Server runnning on port ${port}`);
+app.listen(process.env.PORT, () => {
+
+    console.log(`Server runnning on port ${process.env.PORT}`);
 });
 
-//  const uri = 'mongodb://localhost:27017/lotterydb'
-const uri = 'mongodb://localhost:27017/ecommerce'
-
-const ProductSchema = new mongoose.Schema({
-    name: {type: String, required:  true},
-    price: {type: Number, required: true},
-    brand: {type: String, required: true},
-    quantity: {type: Number, required: true},
-    category: {type: String, required: true},
-    id: {type: String},
-    created: {type: String},
-	 isLiked: {type: Boolean, default: false}
-    
-}, {
-    collection: 'products'
-})
-const Products = mongoose.model('ProductModel', ProductSchema)
 
 
-async function connect(){
-    try{
-        mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
-        console.log("connected to mongodb");
-    }catch(error){
-        console.error(error);
-    }
-}
-
-connect()
 
 // app.post('/products', async(req,res)=>{
 //     // console.log("hello")
@@ -74,40 +72,24 @@ function paginate (arr, size) {
     }, [])
 }
 
-app.get('/products', async(req,res)=>{
-   const allProductsFromDb = await Products.find({})
 
-   let page_size = req.query.size
-   let pages = paginate(allProductsFromDb, page_size)
-	let pageLimit = Math.ceil(allProductsFromDb.length/page_size)
-	// console.log(req.query.size)
-
-	if(req.query.page){
-		// let page_size = req.query.size
-   	// let pages = paginate(allProductsFromDb, page_size)
-
-		pages[req.query.page]
-
-		res.json({productList: pages[req.query.page-1], maxPage:pageLimit})
-
-	}else{
-		res.json({productList: allProductsFromDb, maxPage:5})
-	} 
-})
 
 app.put('/products/:id', async(req,res)=>{
 	try{
-		const productId = req.params.id
-		const productData = await Products.findById(productId)
+		console.log(req.body.isLiked)
+		// const productId = req.params.id
+		// const productData = await Products.findByIdAndUpdate(productId, { $set: { isLiked:true }})
+		// // const productData = await Products.findByIdAndUpdate(productId)
 
-		//check if data is available
-		if(!productData){
-			return res.status(404).send()
-		}else{
-			res.send(productData)
-		}
-		
-		console.log(req.params.id) // to log the produc id on node console
+		// //check if data is available
+		// if(!productData){
+		// 	return res.status(404).send()
+		// }else{
+		// 	res.send(productData)
+		// }
+
+		res.send("ok")
+		console.log(req.params.id) // to log the product id on node console
 	}catch(error){
 		res.send(error)
 	}
