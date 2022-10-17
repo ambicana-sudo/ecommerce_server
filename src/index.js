@@ -76,20 +76,22 @@ function paginate (arr, size) {
 
 app.put('/products/:id', async(req,res)=>{
 	try{
-		console.log(req.body.isLiked)
-		// const productId = req.params.id
-		// const productData = await Products.findByIdAndUpdate(productId, { $set: { isLiked:true }})
-		// // const productData = await Products.findByIdAndUpdate(productId)
+		console.log(req.params.id)
+		// const isLiked = false;
+		// console.log(req.body.isLiked)
+		const productId = req.params.id
+		const productData = await Products.findByIdAndUpdate(productId, { $set: { isLiked: req.body.isLiked }})
 
-		// //check if data is available
-		// if(!productData){
-		// 	return res.status(404).send()
-		// }else{
-		// 	res.send(productData)
-		// }
+		// check if data is available
+		if(!productData){	
+			return res.status(404).send()
+		}else{
+			res.send(productData)
+		}
 
-		res.send("ok")
-		console.log(req.params.id) // to log the product id on node console
+
+		// res.send("ok")
+		// console.log(req.params.id) 
 	}catch(error){
 		res.send(error)
 	}
