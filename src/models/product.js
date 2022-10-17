@@ -24,7 +24,7 @@ const RegisterSchema = new mongoose.Schema({
 })
 
 const Products = mongoose.model('ProductModel', ProductSchema)
-const Register = mongoose.model('RegissterModel', RegisterSchema)
+const Register = mongoose.model('RegisterModel', RegisterSchema)
 
 module.exports = Products
 module.exports = Register

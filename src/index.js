@@ -4,12 +4,14 @@ const bodyParser = require('body-parser')
 const dotenv = require ("dotenv")
 const Products = require('./models/product')
 const Register = require('./models/product')
+// const productRouter = require('../src/route/route')
 
 app.use(cors())
 require('./db/mongoose')()
 app.use(bodyParser.json())
-// const port = 3001;
+// app.use('/', productRouter)
 dotenv.config()
+// const port = 3001;
 
 app.get('/products', async(req,res)=>{
 	
