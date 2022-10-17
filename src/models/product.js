@@ -8,7 +8,7 @@ const ProductSchema = new mongoose.Schema({
     category: {type: String, required: true},
     id: {type: String},
     created: {type: String},
-	isLiked: {type: Boolean,}
+	isLiked: {type: Boolean, default: false}
     
 }, {
     collection: 'products'
@@ -25,4 +25,6 @@ const RegisterSchema = new mongoose.Schema({
 
 const Products = mongoose.model('ProductModel', ProductSchema)
 const Register = mongoose.model('RegissterModel', RegisterSchema)
+
 module.exports = Products
+module.exports = Register

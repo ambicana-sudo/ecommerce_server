@@ -3,6 +3,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const dotenv = require ("dotenv")
 const Products = require('./models/product')
+const Register = require('./models/product')
 
 app.use(cors())
 require('./db/mongoose')()
@@ -31,13 +32,6 @@ app.get('/products', async(req,res)=>{
 		 res.json({productList: allProductsFromDb, maxPage:5})
 	 } 
  })
-
-app.listen(process.env.PORT, () => {
-
-    console.log(`Server runnning on port ${process.env.PORT}`);
-});
-
-
 
 
 // app.post('/products', async(req,res)=>{
@@ -72,8 +66,6 @@ function paginate (arr, size) {
     }, [])
 }
 
-
-
 app.put('/products/:id', async(req,res)=>{
 	try{
 		console.log(req.params.id)
@@ -107,6 +99,39 @@ app.put('/products/:id', async(req,res)=>{
 // 		 return res.status(404).send()
 // 	}
 // })
+
+app.get('/register', async(req,res)=>{
+	const registerUser = await Register.find({})
+	res.json({userList: registerUser})
+ })
+
+app.post('/register', async(req,res)=>{
+	try{
+		// check to make sure the email provided not registered
+		// Register.findOne({email: req.body.email}).then((email)=>{
+		// 	if(email){
+		// 		// throw a 404 error if the email Id is already exists
+		// 		return res.status(400).json({email: "Email already exists, try new one"})
+		// 	}
+		// })
+		const user = await Register.create(req.body)
+		if(user){	
+			res.json({
+				msg: "added user"
+			})
+		}
+		}catch(err){
+			res.send({
+				errmsg: "Invalid"
+			})
+		}
+    // console.log("hello")
+})
+
+app.listen(process.env.PORT, () => {
+
+    console.log(`Server runnning on port ${process.env.PORT}`);
+});
 
 
 //Lotterydb
