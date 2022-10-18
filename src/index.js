@@ -3,7 +3,11 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const dotenv = require ("dotenv")
 const Products = require('./models/product')
-const Register = require('./models/product')
+const Register = require('./models/register')
+const Login = require('./models/login')
+const bcrypt = require('bcrypt');
+const { find } = require('./models/product')
+const saltRounds = 10;
 // const productRouter = require('../src/route/route')
 
 app.use(cors())
@@ -11,7 +15,6 @@ require('./db/mongoose')()
 app.use(bodyParser.json())
 // app.use('/', productRouter)
 dotenv.config()
-// const port = 3001;
 
 app.get('/products', async(req,res)=>{
 	
@@ -34,13 +37,6 @@ app.get('/products', async(req,res)=>{
 		 res.json({productList: allProductsFromDb, maxPage:5})
 	 } 
  })
-
-
-// app.post('/products', async(req,res)=>{
-//     // console.log("hello")
-//      Products.create(req.body)
-//      res.json({msg: "added"})
-// })
 
 app.post('/products', async(req,res)=>{
 	try{
@@ -70,8 +66,7 @@ function paginate (arr, size) {
 
 app.put('/products/:id', async(req,res)=>{
 	try{
-		console.log(req.params.id)
-		// const isLiked = false;
+		// console.log(req.params.id)
 		// console.log(req.body.isLiked)
 		const productId = req.params.id
 		const productData = await Products.findByIdAndUpdate(productId, { $set: { isLiked: req.body.isLiked }})
@@ -82,59 +77,68 @@ app.put('/products/:id', async(req,res)=>{
 		}else{
 			res.send(productData)
 		}
-
-
 		// res.send("ok")
-		// console.log(req.params.id) 
 	}catch(error){
 		res.send(error)
 	}
 })
 
-// app.patch('/products/:id', async(req,res)=>{
-// 	try{
-// 		 const productId = req.params.id
-// 		 const updateData = await Products.findByIdAndUpdate(productId, req.body) //(productWithTheId, update)
-
-// 		 res.send(updateData)
-// 	}catch(error){
-// 		 return res.status(404).send()
-// 	}
-// })
-
 app.get('/register', async(req,res)=>{
 	const registerUser = await Register.find({})
-	res.json({userList: registerUser})
+	res.json({registeredList: registerUser})
  })
 
 app.post('/register', async(req,res)=>{
 	try{
-		// check to make sure the email provided not registered
-		// Register.findOne({email: req.body.email}).then((email)=>{
-		// 	if(email){
-		// 		// throw a 404 error if the email Id is already exists
-		// 		return res.status(400).json({email: "Email already exists, try new one"})
-		// 	}
-		// })
-		const user = await Register.create(req.body)
-		if(user){	
-			res.json({
-				msg: "added user"
-			})
+		bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+			// console.log(req.body)
+
+			req.body['password'] = hash
+			const user = Register.create(req.body)
+		});
+
+	}catch(err){
+		res.send({
+			errmsg: "Invalid"
+		})
+	}	
+})
+
+app.get('/login', async(req,res)=>{
+	const LoginUser = await Login.find({})
+	res.json({loggedList: LoginUser})
+ })
+
+app.post('/login', async(req,res)=>{
+	const loginUser = await Login.find({name: req.body.name})
+	console.log(req.body.name)
+	console.log(loginUser)
+
+	try{
+		if(loginUser){
+			bcrypt.compare(req.body.password, hash, function(err, result) {
+				if (result) {
+					res.json('valid password')
+				}
+			});
 		}
-		}catch(err){
-			res.send({
-				errmsg: "Invalid"
-			})
-		}
-    // console.log("hello")
+	}catch(err){
+		res.send('something broke')
+	}
 })
 
 app.listen(process.env.PORT, () => {
-
     console.log(`Server runnning on port ${process.env.PORT}`);
 });
 
+
+// compare password
+// find({req.body.name})
+// bcrypt.compare(req.body.password, hash(databaswapass), function(err, result) {
+// 	if (result) {
+// 	   console.log(result)
+//    }
+// });
 
 //Lotterydb
 //======================
