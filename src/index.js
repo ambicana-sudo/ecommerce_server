@@ -121,14 +121,14 @@ app.post('/login', async(req,res)=>{
 		}
 
 		if(logUser){
-			const matchPassword =bcrypt.compare(req.body.password, logUser.password, function(err, result) {
+			const matchPassword = awaitbcrypt.compare(req.body.password, logUser.password, function(err, result) {
 				if (result) {
-					const userList = Login.create(req.body)
+					return result
 				}
 			});
 
 			if(!matchPassword){
-				res.json("Invalid Password")
+				res.send("Invalid Password")
 			}else{
 				res.json("User login successful")
 			}
