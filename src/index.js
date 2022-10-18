@@ -110,17 +110,30 @@ app.get('/login', async(req,res)=>{
  })
 
 app.post('/login', async(req,res)=>{
-	const loginUser = await Login.find({name: req.body.name})
-	console.log(req.body.name)
-	console.log(loginUser)
+	const logUser = await Register.findOne({name: req.body.name})
+
+	// console.log(req.body.name)
+	// console.log(logUser)
 
 	try{
-		if(loginUser){
-			bcrypt.compare(req.body.password, hash, function(err, result) {
+		if(!req.body.name || !req.body.password){
+			return res.status(400).json('Please fill the data first')
+		}
+
+		if(logUser){
+			const matchPassword =bcrypt.compare(req.body.password, logUser.password, function(err, result) {
 				if (result) {
-					res.json('valid password')
+					const userList = Login.create(req.body)
 				}
 			});
+
+			if(!matchPassword){
+				res.json("Invalid Password")
+			}else{
+				res.json("User login successful")
+			}
+		}else{
+			res.json('User not available')
 		}
 	}catch(err){
 		res.send('something broke')
@@ -131,14 +144,6 @@ app.listen(process.env.PORT, () => {
     console.log(`Server runnning on port ${process.env.PORT}`);
 });
 
-
-// compare password
-// find({req.body.name})
-// bcrypt.compare(req.body.password, hash(databaswapass), function(err, result) {
-// 	if (result) {
-// 	   console.log(result)
-//    }
-// });
 
 //Lotterydb
 //======================
