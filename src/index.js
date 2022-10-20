@@ -132,7 +132,6 @@ app.post('/login', async(req,res)=>{
 					const accessToken = jwt.sign(user, process.env.TOKEN_SECRET);
 					// console.log(accessToken)
 					res.json(accessToken)
-					
 				}
 			});
 
