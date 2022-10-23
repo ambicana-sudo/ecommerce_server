@@ -87,10 +87,10 @@ app.put('/products/:id', async(req,res)=>{
 })
 
 // REGISTER ROUTE
-app.get('/register', async(req,res)=>{
-	const registerUser = await User.find({})
-	res.json({registeredList: registerUser})
- })
+// app.get('/register', async(req,res)=>{
+// 	const registerUser = await User.find({})
+// 	res.json({registeredList: registerUser})
+//  })
 
 app.post('/register', async(req,res)=>{
 	try{
@@ -109,10 +109,10 @@ app.post('/register', async(req,res)=>{
 })
 
 // LOGIN ROUTE
-app.get('/login', async(req,res)=>{
-	const LoginUser = await User.find({})
-	res.json({loggedList: LoginUser})
- })
+// app.get('/login', async(req,res)=>{
+// 	const LoginUser = await User.find({})
+// 	res.json({loggedList: LoginUser})
+//  })
 
 app.post('/login', async(req,res)=>{
 	const logUser = await User.findOne({name: req.body.name})
@@ -121,25 +121,28 @@ app.post('/login', async(req,res)=>{
 	// console.log(logUser)
 
 	try{
-		if(!req.body.name || !req.body.password){
-			return res.status(400).json('Please fill the data')
-		}
+		// if(!req.body.name || !req.body.password){
+		// 	return res.status(400).json('Please fill the data')
+		// }
 
 		if(logUser){
 			const matchPassword =bcrypt.compare(req.body.password, logUser.password, function(err, result) {
 				if (result) {
 					const user = {name: req.body.name}
-					const accessToken = jwt.sign(user, process.env.TOKEN_SECRET);
+					const userToken = jwt.sign(user, process.env.TOKEN_SECRET);
 					// console.log(accessToken)
-					res.json(accessToken)
+					res.json({accessToken: userToken})
+
+					const updateUser = User.findOneAndUpdate(user, {token: userToken})
+					console.log(updateUser)
 				}
 			});
 
-			if(!matchPassword){
-				res.json("Invalid Password")
-			}else{
-				res.json("User login successful")
-			}
+			// if(!matchPassword){
+			// 	res.json("Invalid Password")
+			// }else{
+			// 	res.json("User login successful")
+			// }
 		}else{
 			res.json('User not available')
 		}
@@ -153,15 +156,6 @@ app.post('/login', async(req,res)=>{
 app.listen(process.env.PORT, () => {
     console.log(`Server runnning on port ${process.env.PORT}`);
 });
-
-
-// compare password
-// find({req.body.name})
-// bcrypt.compare(req.body.password, hash(databaswapass), function(err, result) {
-// 	if (result) {
-// 	   console.log(result)
-//    }
-// });
 
 //Lotterydb
 //======================
