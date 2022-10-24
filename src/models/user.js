@@ -4,8 +4,9 @@ const UserSchema = new mongoose.Schema({
     name: {type: String, required:  true},
     email: {type: String, required: true},
     password: {type: String, required: true},
-    wishList: {type: Array},
-    token: {type: String}
+    token: {type: String},
+    wishList: {type: Array}
+  
 }, {
     collection: 'users'
 })
