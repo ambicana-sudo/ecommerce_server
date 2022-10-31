@@ -2,7 +2,8 @@ const express = require('express')
 const Products = require('../models/product')
 const app = express.Router()
 
-// Products route
+// get Products route
+
 app.get('/products', async(req,res)=>{
 	try{
         const allProductsFromDb = await Products.find({})
@@ -31,6 +32,7 @@ app.get('/products', async(req,res)=>{
 	 
  })
 
+// post product route
 app.post('/products', async(req,res)=>{
 	try{
 		const product = await Products.create(req.body)
@@ -58,6 +60,7 @@ function paginate (arr, size) {
     }, [])
 }
 
+// update product route
 app.put('/products/:id', async(req,res)=>{
 	try{
 		// console.log(req.params.id)
@@ -67,7 +70,10 @@ app.put('/products/:id', async(req,res)=>{
 
 		// check if data is available
 		if(!productData){	
-			return res.status(404).send()
+			return res.status(500).json({
+                success: false, 
+                message: "product not found"
+            })
 		}else{
 			res.send(productData)
 		}

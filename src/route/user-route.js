@@ -5,6 +5,8 @@ const User = require('../models/user')
 const app = express.Router()
 const jwt = require('jsonwebtoken')
 
+
+// register user
 app.post('/register', async(req,res)=>{
 	try{
 		bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
@@ -22,6 +24,7 @@ app.post('/register', async(req,res)=>{
 	}	
 })
 
+// login user
 app.post('/login', async(req,res)=>{
 	const logUser = await User.findOne({name: req.body.name})
 
@@ -29,10 +32,11 @@ app.post('/login', async(req,res)=>{
 	// console.log(logUser)
 
 	try{
-		// if(!req.body.name || !req.body.password){
-		// 	return res.status(400).json('Please fill the data')
-		// }
+		if(!req.body.name || !req.body.password){
+			return res.status(400).json('Please fill the data')
+		}
 
+        //compare password
 		if(logUser){
 			bcrypt.compare(req.body.password, logUser.password, function(err, result) {
 				if (result) {
@@ -48,14 +52,8 @@ app.post('/login', async(req,res)=>{
 						})
 				}
 			});
-
-			// if(!matchPassword){
-			// 	res.json("Invalid Password")
-			// }else{
-			// 	res.json("User login successful")
-			// }
 		}else{
-			res.json('User not available')
+			res.json('Invalid email or password')
 		}
 	}catch(err){
 		res.send({
