@@ -11,7 +11,7 @@ const jwt = require('jsonwebtoken');
 const multer  = require('multer')
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
-		cb(null, 'uploads/')
+		cb(null, '../uploads/')
 	},
 	filename: function (req, file, cb) {
 		// console.log(file)
@@ -42,7 +42,6 @@ app.get('/products', async(req,res,next)=>{
 	}else{
 		allProductsFromDb = await Products.find({})
 	}
-	// const allProductsFromDb = await Products.find({})
 
  	console.log(allProductsFromDb)
 
@@ -66,8 +65,8 @@ app.get('/products', async(req,res,next)=>{
 
 app.post('/products', upload, async(req,res)=>{
 	try{
-		console.log(req.file)
-		req.body.filePath = "ambika"
+		console.log(req.file,"OOO")
+		req.body.filePath = req.file.path
 		const product = await Products.create(req.body)
 		if(product){	
 			res.json({

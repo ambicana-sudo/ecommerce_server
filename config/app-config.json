@@ -1,3 +1,3 @@
 {
-    "mongodb_url": "mongodb://localhost:27017/ecommerce"
+    "mongodb_url": "mongodb://localhost:27017/ecommerce2"
 }
