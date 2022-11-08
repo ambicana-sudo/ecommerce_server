@@ -2,52 +2,57 @@ const express = require('express')
 const Products = require('../models/product')
 const app = express.Router()
 
-// get Products route
+// Products route
+app.get('/products', async(req,res,next)=>{
+	// console.log(req.query.search)
 
-app.get('/products', async(req,res)=>{
-	try{
-        const allProductsFromDb = await Products.find({})
+	var regexp = new RegExp("^"+ req.query.search);
+
+	let allProductsFromDb;
+
+	if(req.query.search){
+		allProductsFromDb = await Products.find({ name: regexp });
+		// allProductsFromDb = await Products.find({ name: "^" + req.query.search });
+	}else{
+		allProductsFromDb = await Products.find({})
+	}
+
+ 	// console.log(allProductsFromDb)
+
+	let page_size = req.query.size
+	let pages = paginate(allProductsFromDb, page_size)
+	let pageLimit = Math.ceil(allProductsFromDb.length/page_size)
+	 // console.log(req.query.size)
  
-        let page_size = req.query.size
-        let pages = paginate(allProductsFromDb, page_size)
-        let pageLimit = Math.ceil(allProductsFromDb.length/page_size)
-	    // console.log(req.query.size)
+	 if(req.query.page){
+		 // let page_size = req.query.size
+		// let pages = paginate(allProductsFromDb, page_size)
  
-        if(req.query.page){
-            // let page_size = req.query.size
-            // let pages = paginate(allProductsFromDb, page_size)
-    
-            pages[req.query.page]
-    
-            res.json({productList: pages[req.query.page-1], maxPage:pageLimit})
-    
-        }else{
-            res.json({productList: allProductsFromDb, maxPage:5})
-        }
-    }catch(err){
-        res.send({
-			errmsg: "Unable To Get Products!"
-		})
-    }
-	 
+		 pages[req.query.page]
+ 
+		 res.json({productList: pages[req.query.page-1], maxPage:pageLimit})
+ 
+	 }else{
+		 res.json({productList: allProductsFromDb, maxPage:5})
+	 } 
  })
 
-// post product route
-app.post('/products', async(req,res)=>{
+app.post('/products', upload, async(req,res)=>{
 	try{
+		// console.log(req.file,"OOO")
+		req.body.filePath = req.file.filename
 		const product = await Products.create(req.body)
 		if(product){	
 			res.json({
-				msg: "New Product has been added"
+				msg: "added"
 			})
 		}
-        
 	}catch(err){
 		res.send({
 			errmsg: "Invalid"
 		})
 	}
-    console.log(req.body)
+    // console.log("hello")
 })
 
 function paginate (arr, size) {
@@ -60,7 +65,6 @@ function paginate (arr, size) {
     }, [])
 }
 
-// update product route
 app.put('/products/:id', async(req,res)=>{
 	try{
 		// console.log(req.params.id)
@@ -70,16 +74,41 @@ app.put('/products/:id', async(req,res)=>{
 
 		// check if data is available
 		if(!productData){	
-			return res.status(500).json({
-                success: false, 
-                message: "product not found"
-            })
+			return res.status(404).send({message: 'Product not Found'})
 		}else{
 			res.send(productData)
 		}
 		// res.send("ok")
-	}catch(err){
-		res.send(err)
+	}catch(error){
+		res.send(error)
+	}
+})
+
+app.put('/savecart', async(req,res)=>{
+	try{
+		console.log(req.body)
+	}catch(error){
+		console.log(error)
+	}
+})
+
+// get product detail page
+app.get('/products/:_id', async(req, res)=>{
+	try{
+		// console.log(req.params._id)
+
+		const productKey = req.params._id
+
+		const product = await Products.findById({_id : productKey})
+		
+		if(product){
+			res.send(product)
+		}else{
+			res.send('product not available')
+		}
+	
+	}catch(error){
+		console.log(error)
 	}
 })
 

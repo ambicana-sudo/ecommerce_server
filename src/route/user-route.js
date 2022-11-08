@@ -6,14 +6,13 @@ const app = express.Router()
 const jwt = require('jsonwebtoken')
 
 
-// register user
-app.post('/register', async(req,res)=>{
+app.post('/register', async(req,res)=>{ 
 	try{
 		bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
 			req.body['password'] = hash
 			const user = User.create(req.body)
 			res.json({
-				"msg": "User has been registered"
+				"msg": "registered"
 			})
 		});
 
@@ -24,7 +23,6 @@ app.post('/register', async(req,res)=>{
 	}	
 })
 
-// login user
 app.post('/login', async(req,res)=>{
 	const logUser = await User.findOne({name: req.body.name})
 
@@ -32,11 +30,10 @@ app.post('/login', async(req,res)=>{
 	// console.log(logUser)
 
 	try{
-		if(!req.body.name || !req.body.password){
-			return res.status(400).json('Please fill the data')
-		}
+		// if(!req.body.name || !req.body.password){
+		// 	return res.status(400).json('Please fill the data')
+		// }
 
-        //compare password
 		if(logUser){
 			bcrypt.compare(req.body.password, logUser.password, function(err, result) {
 				if (result) {
@@ -50,10 +47,13 @@ app.post('/login', async(req,res)=>{
 							console.log(data)
 							res.json({accessToken: data.token})
 						})
+				
+			
 				}
 			});
+
 		}else{
-			res.json('Invalid email or password')
+			res.json('User not available')
 		}
 	}catch(err){
 		res.send({

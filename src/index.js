@@ -24,6 +24,7 @@ const upload = multer({ storage: storage }).single('avatar')
 app.use(cors())
 require('./db/mongoose')()
 app.use(bodyParser.json())
+// const productRouter = require('./route/product-route')
 // app.use('/', productRouter)
 dotenv.config()
 
@@ -43,7 +44,7 @@ app.get('/products', async(req,res,next)=>{
 		allProductsFromDb = await Products.find({})
 	}
 
- 	console.log(allProductsFromDb)
+ 	// console.log(allProductsFromDb)
 
 	let page_size = req.query.size
 	let pages = paginate(allProductsFromDb, page_size)
@@ -65,7 +66,7 @@ app.get('/products', async(req,res,next)=>{
 
 app.post('/products', upload, async(req,res)=>{
 	try{
-		console.log(req.file,"OOO")
+		// console.log(req.file,"OOO")
 		req.body.filePath = req.file.filename
 		const product = await Products.create(req.body)
 		if(product){	
@@ -100,7 +101,7 @@ app.put('/products/:id', async(req,res)=>{
 
 		// check if data is available
 		if(!productData){	
-			return res.status(404).send()
+			return res.status(404).send({message: 'Product not Found'})
 		}else{
 			res.send(productData)
 		}
@@ -110,7 +111,40 @@ app.put('/products/:id', async(req,res)=>{
 	}
 })
 
-app.post('/register', async(req,res)=>{
+// get product detail page
+app.get('/products/:_id', async(req, res)=>{
+	try{
+		// console.log(req.params._id)
+
+		const productKey = req.params._id
+
+		const product = await Products.findById({_id : productKey})
+		
+		if(product){
+			res.send(product)
+		}else{
+			res.send('product not available')
+		}
+	
+	}catch(error){
+		console.log(error)
+	}
+})
+
+// update user detail
+app.put('/savecart', async(req,res)=>{
+	try{
+		console.log(req.body.name)
+		const userName = req.body.name
+
+		const updateUser = await User.findOneAndUpdate(userName, {cart: ["pppp"] })
+
+	}catch(error){
+		console.log(error)
+	}
+})
+
+app.post('/register', async(req,res)=>{ 
 	try{
 		bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
 			req.body['password'] = hash
